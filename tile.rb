@@ -10,12 +10,12 @@ class Tile
     [-1, 1]
   ]
 
+  attr_reader :pos
+
   def initialize(board, pos)
     @board, @pos = board, pos
     @bombed, @explored, @flagged = false
   end
-
-  attr_reader :pos
 
   def bombed?
     @bombed
