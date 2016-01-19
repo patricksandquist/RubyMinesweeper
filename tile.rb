@@ -17,7 +17,7 @@ class Tile
     @bombed, @explored, @flagged = false
   end
 
-  def bombed?
+  def bomb?
     @bombed
   end
 
@@ -46,7 +46,7 @@ class Tile
       nbc = neighbor_bomb_count
       nbc == 0 ? " " : nbc.to_s
     else
-      "*"
+      "_"
     end
   end
 
@@ -54,9 +54,9 @@ class Tile
     # For the last visual render
     if flagged?
       # Differentiate correctly maked tiles
-      bombed? ? "F" : "f"
-    elsif bombed?
-      explored? ? "X" : "B"
+      bomb? ? "F" : "f"
+    elsif bomb?
+      explored? ? "*" : "B"
     else
       nbc = neighbor_bomb_count
       nbc == 0 ? " " : nbc.to_s
@@ -69,7 +69,7 @@ class Tile
 
     @explored = true
 
-    if !bombed? && neighbor_bomb_count == 0
+    if !bomb? && neighbor_bomb_count == 0
       neighbors.each { |neighbor| neighbor.explore }
     end
 
@@ -78,14 +78,19 @@ class Tile
 
   def neighbors
     # Returns all of the tile's neighboring tiles (upto 8 if in range)
-    valid_positions = DELTAS.select do |delta|
-      @board.in_range?([pos[0] + delta[0], pos[1] + delta[1]])
+    adjacent_positions = DELTAS.map do |delta|
+      [pos[0] + delta[0], pos[1] + delta[1]]
+    end
+
+    # Make sure they're in range
+    valid_positions = adjacent_positions.select do |adjacent_position|
+      @board.in_range?(adjacent_position)
     end
 
     valid_positions.map { |valid_position| @board[valid_position] }
   end
 
   def neighbor_bomb_count
-    neighbors.select(&:bombed?).count
+    neighbors.select(&:bomb?).count
   end
 end

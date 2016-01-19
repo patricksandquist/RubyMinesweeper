@@ -10,7 +10,7 @@ class Board
   end
 
   def in_range?(pos)
-    pos.all? { |el| el >= 0 && el < grid_size }
+    pos.all? { |coord| coord >= 0 && coord < grid_size }
   end
 
   def [](pos)
@@ -21,15 +21,16 @@ class Board
   def lost?
     @grid.any? do |row|
       row.any? do |tile|
-        tile.explored? && tile.bombed?
+        tile.explored? && tile.bomb?
       end
     end
   end
 
   def won?
-    @grid.none? do |row|
-      row.none? do |tile|
-        tile.bombed? != tile.explored?
+    # All of the free spaces must be explored to win
+    @grid.all? do |row|
+      row.all? do |tile|
+        !tile.bomb? && tile.explored?
       end
     end
   end
@@ -50,8 +51,8 @@ class Board
   private
 
   def generate_board
-    @grid = Array.new(grid_size) do |i|
-      Array.new(grid_size) { |j| Tile.new(self, [i, j]) }
+    @grid = Array.new(grid_size) do |row|
+      Array.new(grid_size) { |col| Tile.new(self, [row, col]) }
     end
 
     plant_bombs
@@ -62,9 +63,9 @@ class Board
 
     while total_bombs < num_bombs
       rand_pos = Array.new(2) { rand(grid_size) }
-      tile = @grid[rand_pos]
+      tile = self[rand_pos]
 
-      next if tile.bombed?
+      next if tile.bomb?
 
       tile.plant_bomb
       total_bombs += 1

@@ -37,6 +37,7 @@ class Game
   end
 
   def perform_move(action, pos)
+    return unless @board.in_range?(pos)
     tile = @board[pos]
 
     case action
@@ -64,7 +65,7 @@ if $PROGRAM_NAME == __FILE__
 
   case ARGV.count
   when 0
-    MinesweeperGame.new(:small).play
+    Game.new(:small).play
   when 1
     # resume game, using first argument
     YAML.load_file(ARGV.shift).play
